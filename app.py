@@ -23,7 +23,9 @@ from docling.datamodel.pipeline_options import (
     PdfPipelineOptions,
     RapidOcrOptions,
 )
-from tempfile import NamedTemporaryFile
+import cv2
+import numpy as np
+from base64 import b64decode
 
 import os
 import torch
@@ -46,7 +48,7 @@ st.divider()
 #                                                   FUNCTIONS                                                          #
 ########################################################################################################################
 
-def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_model, ollama_llm, llm_prompt):
+def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_model, ollama_llm, llm_prompt, enhance_image):
     # Vision Model through Ollama
     model = ollama_model
 
@@ -55,6 +57,9 @@ def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_m
 
             # Convert images to base64
             base64_code = encode_image(file)
+
+            if enhance_image:
+                base64_code = pre_process_image(base64_code)
 
             prompt = llm_prompt
 
@@ -67,7 +72,6 @@ def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_m
 
     else:
         input_doc_path = Path(file)
-
 
         pipeline_options = PdfPipelineOptions()
         pipeline_options.do_ocr = ocr
@@ -157,6 +161,11 @@ def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_m
                     #                     - Use proper markdown formatting for emphasis and structure
                     #                     - Preserve the original text hierarchy and formatting as much as possible
                     #               """
+
+                    # Enhance Image
+                    if enhance_image:
+                        code = pre_process_image(code)
+
                     content = llm_prompt
 
                     annotations.append(ask_ollama(model, content, code))
@@ -176,6 +185,42 @@ def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_m
     return conv_doc
 
 
+def pre_process_image(image_base64: str) -> bytes:
+    """
+        Preprocess image before OCR:
+        - Enhance contrast
+        - Reduce noise
+
+        Returns the preprocessed image as a base64-encoded string.
+        """
+
+    # Decode base64 string into bytes
+    image_bytes = b64decode(image_base64)
+
+    # Load image from bytes
+    nparr = np.frombuffer(image_bytes, dtype=np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    if image is None:
+        raise ValueError("Could not decode base64 string into an image")
+
+    # Convert to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Enhance contrast using CLAHE
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(gray)
+
+    # Denoise
+    denoised = cv2.fastNlMeansDenoising(enhanced)
+
+    # Convert image to a byte stream for base64 encoding
+    _, img_encoded = cv2.imencode('.jpg', denoised)
+    processed_image_bytes = img_encoded.tobytes()
+
+    return processed_image_bytes
+
+
 def ask_ollama(model, prompt, image):
     response: ChatResponse = chat(
         model=model,
@@ -187,6 +232,7 @@ def ask_ollama(model, prompt, image):
     ])
 
     return response.message.content
+
 
 def encode_image(image_path: str) -> str:
     """Convert image to base64 string"""
@@ -383,10 +429,8 @@ if uploaded_file:
         with st.spinner('Converting...'):
             result = convert_to_markdown(f.name, ocr=enable_ocr, extract_image_desc=get_image_desc,
                                          extract_via_llm=extract_text_through_llm, ollama_model=vision_model,
-                                         ollama_llm=ollama_avb, llm_prompt=user_prompt)
+                                         ollama_llm=ollama_avb, llm_prompt=user_prompt, enhance_image=True)
             st.markdown(result)
-
-
 
             # Download the conversion
             st.download_button(
