@@ -1,0 +1,6 @@
+docling
+pandas
+streamlit
+watchdog
+rapidocr_onnxruntime
+ollama
