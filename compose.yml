@@ -1,0 +1,18 @@
+networks:
+  internal:
+    driver: bridge
+
+services:
+  markdown-converter:
+    build: Document-to-Markdown
+    restart: always
+    ports:
+      - "8501:8501"
+    networks:
+      - internal
+    environment:
+    # For Podman
+      OLLAMA_BASE_URL: http://host.containers.internal:11434
+    # For Docker
+#    extra_hosts:
+#      - "host.docker.internal:host-gateway"  # Allow access to host.docker.internal
