@@ -4,3 +4,7 @@ streamlit
 watchdog
 rapidocr_onnxruntime
 ollama
+opencv-python
+numpy
+torch
+httpx
