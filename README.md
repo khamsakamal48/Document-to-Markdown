@@ -63,7 +63,6 @@ The **Document to Markdown Converter** is a Streamlit-based web application that
    
     # Using Docker
    docker-compose up -d -f compose.yml
-   
 
 ## Usage
 
