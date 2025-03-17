@@ -1,5 +1,4 @@
 # Document to Markdown Converter
-___
 
 ## Overview
 
