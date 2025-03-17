@@ -25,7 +25,7 @@ The **Document to Markdown Converter** is a Streamlit-based web application that
 
 ## Installation
 
-To run the application locally, follow these steps:
+### To run the application locally, follow these steps:
 
 1. **Clone the Repository**:
    ```bash
@@ -47,6 +47,23 @@ To run the application locally, follow these steps:
 
 4. **Access the Application**:
    Open your web browser and navigate to `http://localhost:8501` to access the application.
+
+### To run the application inside a contained, follow these steps:
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/khamsakamal48/Document-to-Markdown.git
+   cd Document-to-Markdown
+
+2. **Use Podman or Docker**
+    ```bash
+   # Using Podman
+   mv compose.yml docker-compose.yml
+   podman-compose up -d
+   
+    # Using Docker
+   docker-compose up -d -f compose.yml
+   
 
 ## Usage
 
