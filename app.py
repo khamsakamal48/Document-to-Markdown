@@ -440,7 +440,8 @@ def get_vision_models():
             if 'vision' in model.model or
             'llava' in model.model or
             'gemma3' in model.model or
-            'moondream' in model.model
+            'moondream' in model.model or
+            'minicpm-v' in model.model
         )
 
         ollama_avbl = True  # Set availability to True if the above operation succeeds
