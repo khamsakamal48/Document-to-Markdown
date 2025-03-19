@@ -8,10 +8,9 @@ services:
     restart: always
     ports:
       - "8501:8501"
-    networks: bridge
+    network_mode: bridge  # Explicitly set bridge mode to avoid Podman pods
     environment:
-    # For Podman
-      OLLAMA_BASE_URL: http://host.containers.internal:11434
-    # For Docker
-#    extra_hosts:
-#      - "host.docker.internal:host-gateway"  # Allow access to host.docker.internal
+      OLLAMA_BASE_URL: http://host.containers.internal:11434  # Podman-specific host access
+    # Uncomment for Docker
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"  # Allow access to host.docker.internal
