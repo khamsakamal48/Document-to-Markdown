@@ -8,8 +8,7 @@ services:
     restart: always
     ports:
       - "8501:8501"
-    networks:
-      - internal
+    networks: bridge
     environment:
     # For Podman
       OLLAMA_BASE_URL: http://host.containers.internal:11434
