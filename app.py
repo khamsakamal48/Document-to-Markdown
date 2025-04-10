@@ -441,7 +441,8 @@ def get_vision_models():
             'llava' in model.model or
             'gemma3' in model.model or
             'moondream' in model.model or
-            'minicpm-v' in model.model
+            'minicpm-v' in model.model or
+            'mistral-small3.1' in model.model
         )
 
         ollama_avbl = True  # Set availability to True if the above operation succeeds
@@ -468,7 +469,8 @@ with st.sidebar:
         'granite3.2-vision:latest': 'https://www.ibm.com/new/announcements/ibm-granite-3-2-open-source-reasoning-and-vision',
         'llama3.2-vision:latest': 'https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/',
         'llama3.2-vision:11b': 'https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/',
-        'gemma3:12b': 'https://blog.google/technology/developers/gemma-3/'
+        'gemma3:12b': 'https://blog.google/technology/developers/gemma-3/',
+        'mistral-small3.1:latest': 'https://mistral.ai/news/mistral-small-3-1'
     }
 
     # Sidebar header for selecting a vision model
