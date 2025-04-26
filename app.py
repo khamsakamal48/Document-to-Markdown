@@ -186,7 +186,7 @@ def convert_to_markdown(file, ocr, extract_image_desc, extract_via_llm, ollama_m
                 InputFormat.PDF,
                 InputFormat.IMAGE,
                 InputFormat.DOCX,
-                InputFormat.HTML,
+                # InputFormat.HTML,
                 InputFormat.PPTX,
             ],
             format_options={
