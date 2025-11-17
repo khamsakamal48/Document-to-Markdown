@@ -35,38 +35,88 @@ except KeyError as e:
 processed_folder = os.path.join(source_folder, "Processed")
 
 # ---------------- Prompt ---------------- #
-prompt = """ 
-You are the world's best image-to-text converter. Your task is to extract **all** text content from an image **exactly as it appears**, without modification, summarization, or omission.
+# prompt = """ 
+# You are the world's best image-to-text converter. Your task is to extract **all** text content from an image **exactly as it appears**, without modification, summarization, or omission.
 
+# ## Instructions:
+# 1. **Extract text exactly as it is displayed in the image**—do not interpret, modify, or infer any content.
+# 2. Ensure the following key fields are **captured accurately**:
+#    - **Programme:** (Degree type such as B.Tech, M.Tech, PhD, DIIT, etc.)
+#    - **Branch:** (Department name such as Mechanical, Civil, Aerospace, etc.)
+#    - **Date of Convocation:** (Exact date format as in the image)
+#    - **Sr. No.:** (Serial Number as listed)
+#    - **Roll No.:** (Exact roll number from the image)
+#    - **Name of the Student:** (Indian names should be extracted as they appear; do not modify them)
+#    - **Absent or Present:** (Clearly indicate if the student was absent or present)
+# 3. **If any text is unclear**, extract as much as possible while maintaining accuracy.
+# 4. Try to **classify** the text whether it's a degree, department, name of the student, date fields or roll number based on your understanding.
+# 5. Ignore data that doesn't fall into any of the key fields.
+# 6. Don't repeat values if not present in the image.
+
+# ## Output Format:
+# Your response must be structured as a markdown table with the following format:
+
+# | **Sr. No.** | **Programme** | **Branch** | **Date of Convocation** | **Roll No.** | **Name of the student** | **Absent or Present** |
+# | ----------- | ------------- | ---------- | ----------------------- | ------------ | ----------------------- | --------------------- |
+# |             |               |            |                         |              |                         |                       |
+
+
+# ## Additional Constraints:
+# - **Do not generate any additional text or explanations.** The output should only be the structured table.
+# - **Do not summarize or categorize the data beyond the fields given.** Maintain exact textual integrity.
+# - **Preserve formatting and spacing** to ensure readability in a structured table format.
+
+# If the extracted text does not fit within the given table format due to missing values, leave the cell empty instead of making assumptions.
+# """
+
+prompt = """
+You are the world's best **Vision-based image-to-text extraction model**.
+
+Your task is to read the image **exactly as it is printed** and convert the visible text into structured table rows **without correcting, modifying, guessing, or interpreting anything**.
+ 
 ## Instructions:
-1. **Extract text exactly as it is displayed in the image**—do not interpret, modify, or infer any content.
-2. Ensure the following key fields are **captured accurately**:
-   - **Programme:** (Degree type such as B.Tech, M.Tech, PhD, DIIT, etc.)
-   - **Branch:** (Department name such as Mechanical, Civil, Aerospace, etc.)
-   - **Date of Convocation:** (Exact date format as in the image)
-   - **Sr. No.:** (Serial Number as listed)
-   - **Roll No.:** (Exact roll number from the image)
-   - **Name of the Student:** (Indian names should be extracted as they appear; do not modify them)
-   - **Absent or Present:** (Clearly indicate if the student was absent or present)
-3. **If any text is unclear**, extract as much as possible while maintaining accuracy.
-4. Try to **classify** the text whether it's a degree, department, name of the student, date fields or roll number based on your understanding.
-5. Ignore data that doesn't fall into any of the key fields.
-6. Don't repeat values if not present in the image.
-
+1. Carefully examine the **visual layout** of the page and read all text **as printed**, line by line.
+2. **Do NOT infer or guess** any field:
+   - Only extract what is visually present.
+   - If a field is not visible → leave that cell blank.
+3. Preserve all text **exactly**:
+   - Spelling (including unusual or uncommon names)
+   - Formatting (initials, periods, brackets, honorifics like (Ms), etc.)
+   - Roll Numbers (preserve **all digits including leading zeros**)
+4. A student's record consists of:
+   - **Roll No.** (a number printed directly beside a name)
+   - **Name** (exactly as printed)
+   - The **Programme** field = the programme heading shown visually above the list (e.g., "BACHELOR OF TECHNOLOGY (B.Tech.)")
+   - The **Branch** field = the department/discipline heading printed before the student list (e.g., "Aerospace Engineering")
+5. Only treat text as a heading if it is visually formatted as such (bold, centered, larger font, or placed as a section header).
+6. Ignore:
+   - page numbers
+   - decorative elements
+   - unwanted paragraphs
+   - anything that is not part of the convocation record
+ 
 ## Output Format:
-Your response must be structured as a markdown table with the following format:
-
-| **Sr. No.** | **Programme** | **Branch** | **Date of Convocation** | **Roll No.** | **Name of the student** | **Absent or Present** |
-| ----------- | ------------- | ---------- | ----------------------- | ------------ | ----------------------- | --------------------- |
-|             |               |            |                         |              |                         |                       |
-
-
+Respond ONLY with the table below — no explanations, no notes, no commentary.
+ 
+| Roll No. | Name | Programme | Branch |
+| -------- | ---- | --------- | ------ |
+|          |      |           |        |
+- Add one row per student.
+- Keep Programme and Branch repeated for every student row exactly as shown in the image.
+ 
 ## Additional Constraints:
-- **Do not generate any additional text or explanations.** The output should only be the structured table.
-- **Do not summarize or categorize the data beyond the fields given.** Maintain exact textual integrity.
-- **Preserve formatting and spacing** to ensure readability in a structured table format.
+- **Do not generate any additional text, comments, or explanations.**
+- **Output only the table.**
+- **Preserve the exact spelling, spacing, and formatting** from the image.
+- If the extracted text does not fit within the table due to missing fields, leave cells empty instead of making assumptions.
+- No hallucinating roll numbers
+- No correcting Indian names
+- No inferring missing details
+- No adding categories not printed
+- No summarization
+- No grouping or merging rows
 
-If the extracted text does not fit within the given table format due to missing values, leave the cell empty instead of making assumptions.
+Your only job is **visual extraction with pixel-perfect fidelity.**
 """
 
 # ---------------- Core Functions ---------------- #
